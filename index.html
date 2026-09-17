@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>极速成长系统</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1526'/%3E%3Cpath d='M12 44 26 28l8 8 18-20' stroke='%23f5b942' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='52' cy='16' r='5' fill='%2322d3a7'/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c1220;--bg2:#0a0f1a;--card:#121a2e;--card2:#0f1728;
+  --line:rgba(148,178,255,.14);--line2:rgba(148,178,255,.07);
+  --txt:#e8eefc;--mut:#8ea0c4;--dim:#5d6f94;
+  --gold:#f5b942;--gold2:#ffd37a;--cyan:#22d3a7;--cyan2:#5eead4;
+  --blue:#4f8cff;--red:#ff5d73;--amber:#ff9f43;
+  --mono:"SF Mono",Consolas,Menlo,monospace;
+}
+html,body{height:100%}
+body{font-family:"Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;overflow:hidden}
+/* 背景刻度网格（静态，非动画） */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(148,178,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(148,178,255,.045) 1px,transparent 1px);
+  background-size:44px 44px;z-index:0}
+/* ============ 导航 ============ */
+#nav{width:212px;background:linear-gradient(180deg,var(--bg2),#0d1526);border-right:1px solid var(--line2);flex-shrink:0;display:flex;flex-direction:column;position:relative;z-index:2;height:100vh;position:sticky;top:0}
+#nav .logo{display:flex;align-items:center;gap:11px;padding:22px 18px 18px;border-bottom:1px solid var(--line2)}
+#nav .logo svg{width:34px;height:34px;flex-shrink:0}
+#nav .logo .nm{font-size:16px;font-weight:900;letter-spacing:.5px;color:#fff}
+#nav .logo .sb{font-size:10px;color:var(--mut);margin-top:2px;letter-spacing:2px}
+#nav .grp{font-size:10px;color:var(--dim);padding:18px 18px 6px;letter-spacing:2px}
+.nitem{display:flex;align-items:center;gap:11px;padding:11px 18px;font-size:13px;color:var(--mut);cursor:pointer;border-left:3px solid transparent;transition:background .15s,color .15s;user-select:none}
+.nitem:hover{background:rgba(148,178,255,.05);color:var(--txt)}
+.nitem.on{background:linear-gradient(90deg,rgba(245,185,66,.10),transparent);border-left-color:var(--gold);color:#fff;font-weight:700}
+.nitem svg{width:17px;height:17px;flex-shrink:0;opacity:.9}
+#nav .foot{margin-top:auto;padding:16px 18px;border-top:1px solid var(--line2);font-size:10.5px;color:var(--dim);line-height:1.9}
+#nav .foot b{color:var(--gold);font-family:var(--mono)}
+/* ============ 主区 ============ */
+#main{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
+#top{display:flex;align-items:center;gap:12px;padding:16px 26px;border-bottom:1px solid var(--line2)}
+#top .tt{font-size:19px;font-weight:900;letter-spacing:.5px}
+#top .ts{font-size:12px;color:var(--mut)}
+#top .sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),#e09b2a);color:#1a1204;border:none;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;transition:transform .12s,box-shadow .15s;font-family:inherit}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(245,185,66,.28)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line);font-weight:600}
+.btn.ghost:hover{color:var(--txt);border-color:rgba(148,178,255,.35);box-shadow:none}
+.btn.cyan{background:linear-gradient(135deg,var(--cyan),#0ea888);color:#04211a}
+.btn.sm{padding:5px 11px;font-size:12px;border-radius:7px}
+.btn.danger{background:transparent;color:var(--red);border:1px solid rgba(255,93,115,.35);font-weight:600}
+#content{flex:1;overflow-y:auto;padding:22px 26px 60px;max-width:1180px;width:100%;margin:0 auto}
+/* ============ 卡片 ============ */
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(158px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+.card .ch{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#c9d6f2;margin-bottom:12px}
+.card .ch .bar{width:3px;height:14px;background:linear-gradient(180deg,var(--gold),var(--cyan));border-radius:2px}
+.kpi{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:15px 17px;position:relative}
+.kpi .k{font-size:11px;color:var(--mut)}
+.kpi .v{font-size:27px;font-weight:900;margin-top:5px;font-family:var(--mono);letter-spacing:-.5px}
+.kpi .d{font-size:11px;color:var(--dim);margin-top:3px}
+.kpi .v.gold{color:var(--gold)}.kpi .v.cyan{color:var(--cyan)}.kpi .v.blue{color:var(--blue)}
+.kpi .v.red{color:var(--red)}.kpi .v.amber{color:var(--amber)}
+.kpi canvas{position:absolute;right:12px;top:12px;width:56px;height:56px}
+.empty{text-align:center;color:var(--dim);font-size:12.5px;padding:26px 0;line-height:2}
+.hint{font-size:11px;color:var(--dim);line-height:1.8}
+/* ============ 任务 ============ */
+.sec{font-size:12px;color:var(--mut);letter-spacing:2px;margin:20px 0 10px;display:flex;align-items:center;gap:10px}
+.sec .ln{flex:1;height:1px;background:var(--line2)}
+.sec b{color:var(--gold);font-family:var(--mono);letter-spacing:0}
+.task{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;background:rgba(148,178,255,.03);transition:border-color .15s,background .15s}
+.task:hover{border-color:rgba(148,178,255,.3)}
+.task .tck{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;background:transparent}
+.task .tck svg{width:12px;height:12px;stroke:transparent}
+.task.done .tck{border-color:var(--cyan);background:var(--cyan)}
+.task.done .tck svg{stroke:#04211a}
+.task .ttl{flex:1;min-width:0}
+.task .ttl .n{font-size:13.5px;font-weight:700}
+.task .ttl .m{font-size:11px;color:var(--dim);margin-top:2px}
+.task.done .ttl .n{color:var(--mut);text-decoration:line-through}
+.task .pts{font-family:var(--mono);font-weight:900;font-size:13px;padding:3px 10px;border-radius:7px;background:rgba(34,211,167,.12);color:var(--cyan);flex-shrink:0}
+.task .pts.loss{background:rgba(255,93,115,.12);color:var(--red)}
+.task .ops{display:flex;gap:4px;flex-shrink:0}
+.iconb{width:26px;height:26px;border:none;background:transparent;color:var(--dim);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:.12s}
+.iconb:hover{background:rgba(148,178,255,.1);color:var(--txt)}
+.iconb svg{width:14px;height:14px}
+/* 添加任务 */
+.addrow{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.inp,.sel{padding:8px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px;width:100%;font-family:inherit;background:var(--card2);color:var(--txt)}
+.inp:focus,.sel:focus{outline:none;border-color:var(--gold)}
+.sel{width:auto;cursor:pointer}
+.inp::placeholder{color:var(--dim)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:640px){.row2{grid-template-columns:1fr}}
+/* ============ 习惯 ============ */
+.habit{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:rgba(148,178,255,.03)}
+.habit .ic{width:38px;height:38px;border-radius:10px;background:rgba(245,185,66,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.habit .ic svg{width:19px;height:19px;stroke:var(--gold)}
+.habit .inf{flex:1;min-width:0}
+.habit .inf .n{font-size:13.5px;font-weight:700}
+.habit .inf .m{font-size:11px;color:var(--dim);margin-top:2px}
+.habit .streak{font-family:var(--mono);font-size:19px;font-weight:900;color:var(--gold);text-align:center;flex-shrink:0}
+.habit .streak small{display:block;font-size:9.5px;color:var(--dim);font-weight:500;letter-spacing:1px}
+.habit .ck{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;background:transparent}
+.habit .ck svg{width:18px;height:18px;stroke:transparent}
+.habit.done .ck{border-color:var(--cyan);background:var(--cyan)}
+.habit.done .ck svg{stroke:#04211a}
+.habit.done .inf .n{color:var(--mut);text-decoration:line-through}
+/* 周格 */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.week .day{border:1px solid var(--line);border-radius:9px;padding:7px 4px;text-align:center;font-size:10.5px;color:var(--dim)}
+.week .day .wd{font-size:10px;color:var(--mut)}
+.week .day.on{border-color:var(--cyan);background:rgba(34,211,167,.1);color:var(--cyan)}
+.week .day.off{opacity:.4}
+/* ============ 维度 ============ */
+.dim{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:rgba(148,178,255,.03)}
+.dim .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dim .inf{flex:1;min-width:0}
+.dim .inf .n{font-size:13.5px;font-weight:700}
+.dim .inf .m{font-size:11px;color:var(--dim);margin-top:2px;font-family:var(--mono)}
+.dim .pbar{height:5px;background:rgba(148,178,255,.1);border-radius:3px;overflow:hidden;margin-top:6px}
+.dim .pbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--cyan));transition:width .3s}
+.dim .ops{display:flex;gap:5px;flex-shrink:0}
+.dim .ops .btn{padding:4px 10px;font-size:12px;border-radius:7px}
+/* ============ 成就 ============ */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:11px}
+.badge{border:1px solid var(--line);border-radius:12px;padding:14px;background:rgba(148,178,255,.03);position:relative}
+.badge .ic{width:42px;height:42px;border-radius:12px;background:rgba(148,178,255,.07);display:flex;align-items:center;justify-content:center;margin-bottom:9px}
+.badge .ic svg{width:22px;height:22px;stroke:var(--mut)}
+.badge .n{font-size:13px;font-weight:800}
+.badge .d{font-size:11px;color:var(--dim);margin-top:3px;line-height:1.6}
+.badge.un .ic{background:rgba(245,185,66,.12)}
+.badge.un .ic svg{stroke:var(--gold)}
+.badge.un .n{color:var(--gold)}
+.badge.un::after{content:"";position:absolute;top:0;right:0;left:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
+.badge .p{font-size:10.5px;color:var(--dim);margin-top:7px;font-family:var(--mono)}
+/* ============ 统计 ============ */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line2);text-align:left}
+th{color:var(--mut);font-weight:500;font-size:11px;letter-spacing:.5px}
+td b{color:var(--txt)}
+.pos{color:var(--cyan);font-family:var(--mono);font-weight:700}
+.neg{color:var(--red);font-family:var(--mono);font-weight:700}
+.chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.c-ok{background:rgba(34,211,167,.13);color:var(--cyan)}
+.c-warn{background:rgba(255,159,67,.13);color:var(--amber)}
+/* ============ 弹窗 ============ */
+.modal{position:fixed;inset:0;background:rgba(5,9,18,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.show{display:flex}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:15px;width:100%;max-width:520px;padding:20px 22px;max-height:88vh;overflow-y:auto}
+.modal .box h3{font-size:15.5px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.mbtns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.mrow{margin-bottom:12px}
+.mrow label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:5px}
+/* toast */
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(16px);background:rgba(13,21,38,.96);border:1px solid var(--line);color:#fff;padding:11px 22px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;z-index:80;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4);font-weight:600}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.gold{border-color:rgba(245,185,66,.5)}
+.toast.cyan{border-color:rgba(34,211,167,.5)}
+/* 升级横幅 */
+#levelup{position:fixed;inset:0;background:rgba(5,9,18,.82);display:none;align-items:center;justify-content:center;z-index:90}
+#levelup.show{display:flex}
+#levelup .inner{text-align:center;animation:rise .7s cubic-bezier(.22,1,.36,1) both}
+@keyframes rise{from{transform:translateY(26px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+#levelup .lv{font-size:76px;font-weight:900;font-family:var(--mono);background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+#levelup .tx{font-size:17px;color:#fff;margin-top:10px;font-weight:700}
+#levelup .sub{font-size:12px;color:var(--mut);margin-top:6px}
+#levelup .ok{margin-top:22px}
+/* 隐藏 */
+.hidden{display:none!important}
+/* 移动端 */
+@media(max-width:880px){
+  #nav{width:62px}
+  #nav .logo .nm,#nav .logo .sb,#nav .grp,#nav .nitem span,#nav .foot span{display:none}
+  .nitem{justify-content:center;padding:13px 0;border-left:none;border-bottom:2px solid transparent}
+  .nitem.on{border-left:none;border-bottom-color:var(--gold)}
+  #top{padding:12px 16px}
+  #content{padding:16px 14px 50px}
+  .task .tck,.habit .ck{width:30px;height:30px}
+  .iconb{width:32px;height:32px}
+  #top .btn{padding:9px 14px}
+  .task .ttl .n{font-size:14px}
+}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<nav id="nav">
+  <div class="logo">
+    <svg viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#f5b942" opacity=".18"/><path d="M12 46 27 29l9 9 16-22" stroke="#f5b942" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="15" r="4.5" fill="#22d3a7"/></svg>
+    <div><div class="nm">极速成长</div><div class="sb">GROWTH OS</div></div>
+  </div>
+  <div class="grp">成长中枢</div>
+  <div class="nitem on" data-v="growth"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m7 13 3-3 2.5 2.5L17 8"/><path d="M17 12v3h-3"/></svg><span>成长总览</span></div>
+  <div class="nitem" data-v="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><span>每日任务</span></div>
+  <div class="nitem" data-v="habits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg><span>习惯打卡</span></div>
+  <div class="nitem" data-v="dims"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12 4 7.5"/></svg><span>六维成长</span></div>
+  <div class="nitem" data-v="badges"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"/></svg><span>成就殿堂</span></div>
+  <div class="nitem" data-v="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>数据分析</span></div>
+  <div class="foot"><span>等级 <b id="navLv">Lv.1</b><br>累计成长 <b id="navPts">0</b> 点<br>连续打卡 <b id="navStk">0</b> 天</span></div>
+</nav>
+<main id="main">
+  <div id="top">
+    <div class="tt" id="pageTitle">成长总览</div>
+    <div class="ts" id="pageSub"></div>
+    <div class="sp"></div>
+    <button class="btn ghost sm" id="settleBtn" onclick="settleToday()">结算今日</button>
+    <button class="btn sm" onclick="addTaskModal()">+ 新任务</button>
+  </div>
+  <div id="content"></div>
+</main>
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+<div id="levelup"><div class="inner"><div class="lv" id="luLv">Lv.2</div><div class="tx" id="luTitle">称号晋升</div><div class="sub" id="luSub">继续加速成长</div><button class="btn ok" onclick="closeLevelUp()">继续前行</button></div></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+/* =================================================================
+   极速成长系统 · GROWTH OS
+   数据全部保存在本机浏览器（localStorage），可导出 Excel(CSV)
+   ================================================================= */
+const DAY = 86400000;
+const DIM_META = {
+  study:{name:"学习", color:"#4f8cff", icon:'<path d="M12 3v13M7 21h10M12 16c-3-3-8-3-8-8V4h8M12 16c3-3 8-3 8-8V4h-8"/>'},
+  work:{name:"工作", color:"#f5b942", icon:'<path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h1M14 10h1M9 14h1M14 14h1"/>'},
+  health:{name:"健康", color:"#22d3a7", icon:'<path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/>'},
+  skill:{name:"技能", color:"#a78bfa", icon:'<path d="M12 3l2.2 5.8L20 9l-4.5 3.5L17 19l-5-3-5 3 1.5-6.5L4 9l5.8-.2z"/>'},
+  social:{name:"社交", color:"#ff9f43", icon:'<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M3 20c.6-3.6 3-5.5 6-5.5s5.4 1.9 6 5.5M14.5 14.6c2.7-.3 5.2 1 6.5 4"/>'},
+  mind:{name:"心智", color:"#f472b6", icon:'<path d="M12 3a6 6 0 0 0-4 10.5c.7.6 1 1.4 1 2.3V17h6v-1.2c0-.9.3-1.7 1-2.3A6 6 0 0 0 12 3z"/><path d="M10 20h4"/>'}
+};
+const TITLES = [
+  [1,"启航者","成长之路刚刚开始"],
+  [3,"进取者","开始有节奏地行动"],
+  [5,"破局者","突破舒适区的边界"],
+  [8,"攀登者","用复利积累优势"],
+  [12,"卓越者","习惯已成为本能"],
+  [16,"领航者","为他人指引方向"],
+  [21,"远见者","看见更长的时间"],
+  [28,"变革者","重新定义可能"],
+  [36,"巅峰者","站在成长的峰顶"],
+  [50,"永恒者","成长即生命本身"]
+];
+const ACHIEVES = [
+  {id:"a1", n:"第一步", d:"完成第 1 个任务", icon:'<path d="M4 12h16M14 6l6 6-6 6"/>'},
+  {id:"a2", n:"十全十美", d:"累计完成 10 个任务", icon:'<path d="M6 3h12M6 8h12M6 13h8M6 18h5"/>'},
+  {id:"a3", n:"百炼成钢", d:"累计成长点达到 100", icon:'<path d="M4 6h16M7 6v13h10V6"/>'},
+  {id:"a4", n:"蓄势待发", d:"累计成长点达到 500", icon:'<path d="M4 6h16M7 6v13h10V6"/><path d="M10 6v4l-2 2M14 6v4l2 2"/>'},
+  {id:"a5", n:"千钧之重", d:"累计成长点达到 1000", icon:'<path d="M4 6h16M7 6v13h10V6"/><path d="M12 2v4M9 17l3 4 3-4"/>'},
+  {id:"a6", n:"三日之约", d:"连续打卡 3 天", icon:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>'},
+  {id:"a7", n:"一旬之契", d:"连续打卡 7 天", icon:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>'},
+  {id:"a8", n:"月满之成", d:"连续打卡 30 天", icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'},
+  {id:"a9", n:"六维共进", d:"六个维度都达到 20 点", icon:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/>'},
+  {id:"a10", n:"全勤之日", d:"单日完成 5 个以上任务", icon:'<path d="M4 6h16M4 12h16M4 18h16"/>'},
+  {id:"a11", n:"夜猫子", d:"在夜间时段完成过任务", icon:'<path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10z"/>'},
+  {id:"a12", n:"破茧成蝶", d:"达到 Lv.10", icon:'<path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9zM12 12c4 0 8-1 8-5-3 0-6 1-8 5zM12 12c-4 0-8-1-8-5 3 0 6 1 8 5zM12 12v9"/>'}
+];
+const TIMES = [
+  {id:"morning",  name:"早晨",   range:"08:00–12:00", color:"#4f8cff"},
+  {id:"afternoon",name:"下午",   range:"12:00–16:00", color:"#22d3a7"},
+  {id:"evening",  name:"晚上",   range:"16:00–20:00", color:"#f5b942"},
+  {id:"night",    name:"夜间",   range:"20:00–24:00", color:"#a78bfa"}
+];
+const WEEK = ["日","一","二","三","四","五","六"];
+/* ============ 数据层 ============ */
+const KEY = "growthOS_v1";
+let S = null;
+const todayStr = () => { const d = new Date(); return d.getFullYear()+"-"+(d.getMonth()+1).toString().padStart(2,"0")+"-"+d.getDate().toString().padStart(2,"0"); };
+const uid = () => Math.random().toString(36).slice(2,9);
+const today = todayStr();
+function defaultData(){
+  const d = new Date();
+  return {
+    v:1, created:today, lastDate:today, player:{name:"", lv:1, exp:0, totalPoints:0, streak:0, lastActive:""},
+    dims:{study:{pts:0},work:{pts:0},health:{pts:0},skill:{pts:0},social:{pts:0},mind:{pts:0}},
+    tasks:[
+      {id:uid(),name:"专注学习 90 分钟",dim:"study",pts:20,time:"morning",loss:10,done:{}},
+      {id:uid(),name:"读完 30 页专业书",dim:"study",pts:15,time:"afternoon",loss:8,done:{}},
+      {id:uid(),name:"运动 / 锻炼 40 分钟",dim:"health",pts:20,time:"evening",loss:10,done:{}},
+      {id:uid(),name:"完成一个项目小里程碑",dim:"skill",pts:25,time:"afternoon",loss:12,done:{}},
+      {id:uid(),name:"写成长复盘日记",dim:"mind",pts:10,time:"night",loss:5,done:{}},
+      {id:uid(),name:"主动交流 / 链接一个人",dim:"social",pts:10,time:"morning",loss:5,done:{}}
+    ],
+    habits:[
+      {id:uid(),name:"早起（7 点前起床）",icon:"sun",checkins:[]},
+      {id:uid(),name:"每日阅读 20 分钟",icon:"book",checkins:[]},
+      {id:uid(),name:"睡前复盘三件事",icon:"moon",checkins:[]}
+    ],
+    achieves:{}, history:{},
+    settings:{dailyGoal:50}
+  };
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw){ S = JSON.parse(raw); } }catch(e){}
+  if(!S){ S = defaultData(); save(); }
+}
+/* ============ 等级 / 称号 ============ */
+const expNeed = lv => Math.floor(80 * Math.pow(lv, 1.45));
+const titleFor = lv => { let t = TITLES[0]; for(const x of TITLES){ if(lv >= x[0]) t = x; } return t; };
+function gainExp(n){
+  S.player.exp += n; S.player.totalPoints = Math.max(0, S.player.totalPoints + n);
+  let up = false;
+  while(S.player.exp >= expNeed(S.player.lv)){ S.player.exp -= expNeed(S.player.lv); S.player.lv++; up = true; }
+  if(up) showLevelUp();
+  return up;
+}
+/* ============ 每日轮转 ============ */
+function rollover(){
+  if(!S.history[today]) S.history[today] = {earned:0,lost:0,tasksDone:0,settled:false,byTime:{morning:0,afternoon:0,evening:0,night:0}};
+  if(S.lastDate === today) return;
+  const y = S.lastDate;
+  // 昨日未完成任务自动结算（扣分）
+  if(S.history[y] && !S.history[y].settled){
+    let lost = 0;
+    for(const t of S.tasks){ if(!t.done[y]) lost += t.loss; }
+    if(S.history[y]){ S.history[y].lost += lost; S.history[y].settled = true; }
+  }
+  // 连击：昨日是否活跃（完成任务或打卡习惯）
+  const yActive = S.history[y] && S.history[y].tasksDone > 0 || S.habits.some(h => h.checkins.includes(y));
+  S.player.streak = yActive ? S.player.streak + 1 : 0;
+  S.lastDate = today;
+  if(!S.history[today]) S.history[today] = {earned:0,lost:0,tasksDone:0,settled:false,byTime:{morning:0,afternoon:0,evening:0,night:0}};
+  save();
+}
+/* ============ 今日结算 ============ */
+function settleToday(){
+  if(S.history[today].settled){ toast("今日已结算", "cyan"); return; }
+  let lost = 0;
+  for(const t of S.tasks){ if(!t.done[today]) lost += t.loss; }
+  S.history[today].lost += lost;
+  S.history[today].settled = true;
+  save(); render();
+  toast("今日结算完成" + (lost>0 ? "，未完成扣 " + lost + " 点" : "，全数完成"), lost>0 ? "gold" : "cyan");
+}
+/* ============ 任务操作 ============ */
+function toggleTask(id){
+  const t = S.tasks.find(x => x.id === id); if(!t) return;
+  const h = S.history[today];
+  if(!t.done[today]){
+    t.done[today] = true; h.tasksDone++; h.earned += t.pts; h.byTime[t.time] = (h.byTime[t.time]||0)+1;
+    S.dims[t.dim].pts += t.pts;
+    gainExp(t.pts);
+    toast("+" + t.pts + " 成长点 · " + t.name, "cyan");
+  } else {
+    t.done[today] = false; h.tasksDone = Math.max(0,h.tasksDone-1); h.earned = Math.max(0,h.earned-t.pts);
+    h.byTime[t.time] = Math.max(0,(h.byTime[t.time]||0)-1);
+    S.dims[t.dim].pts = Math.max(0, S.dims[t.dim].pts - t.pts);
+    gainExp(-t.pts);
+  }
+  S.player.lastActive = today;
+  save(); render(); checkAchievements();
+}
+function delTask(id){
+  const t = S.tasks.find(x => x.id === id); if(!t) return;
+  if(t.done[today]){ S.history[today].earned = Math.max(0,S.history[today].earned-t.pts); S.history[today].tasksDone = Math.max(0,S.history[today].tasksDone-1); }
+  S.tasks = S.tasks.filter(x => x.id !== id);
+  save(); render();
+}
+function addTask(name, dim, pts, time, loss){
+  S.tasks.push({id:uid(), name, dim, pts:+pts, time, loss:+loss, done:{}});
+  save(); render();
+}
+/* ============ 习惯操作 ============ */
+function habitStreak(h){
+  let n = 0; const d = new Date();
+  while(true){
+    const s = d.getFullYear()+"-"+(d.getMonth()+1).toString().padStart(2,"0")+"-"+d.getDate().toString().padStart(2,"0");
+    if(h.checkins.includes(s)){ n++; d.setDate(d.getDate()-1); } else break;
+  }
+  return n;
+}
+function toggleHabit(id){
+  const h = S.habits.find(x => x.id === id); if(!h) return;
+  const i = h.checkins.indexOf(today);
+  const hst = S.history[today];
+  if(i < 0){ h.checkins.push(today); hst.earned += 3; gainExp(3); toast("+3 · " + h.name + " 打卡成功", "cyan"); }
+  else { h.checkins.splice(i,1); hst.earned = Math.max(0,hst.earned-3); gainExp(-3); }
+  save(); render(); checkAchievements();
+}
+function addHabit(name){ S.habits.push({id:uid(), name, icon:"sun", checkins:[]}); save(); render(); }
+function delHabit(id){ S.habits = S.habits.filter(x => x.id !== id); save(); render(); }
+/* ============ 维度操作 ============ */
+function dimAdjust(dim, n){
+  S.dims[dim].pts = Math.max(0, S.dims[dim].pts + n);
+  const h = S.history[today];
+  h.earned = Math.max(0, h.earned + n);
+  gainExp(n);
+  save(); render();
+  toast((n>0?"+":"") + n + " · " + DIM_META[dim].name, n>0?"cyan":"gold");
+}
+/* ============ 成就 ============ */
+function checkAchievements(){
+  const p = S.player, h = S.history;
+  let totalDone = 0, unlocked = 0;
+  for(const k in h){ totalDone += h[k].tasksDone||0; }
+  let nightDone = false;
+  for(const k in h){ if(h[k].byTime && h[k].byTime.night > 0) nightDone = true; }
+  const dimsAll = Object.values(S.dims).every(d => d.pts >= 20);
+  const todayDone = (h[today] && h[today].tasksDone) || 0;
+  const map = {
+    a1: totalDone >= 1, a2: totalDone >= 10, a3: p.totalPoints >= 100, a4: p.totalPoints >= 500,
+    a5: p.totalPoints >= 1000, a6: p.streak >= 3, a7: p.streak >= 7, a8: p.streak >= 30,
+    a9: dimsAll, a10: todayDone >= 5, a11: nightDone, a12: p.lv >= 10
+  };
+  for(const a of ACHIEVES){
+    if(map[a.id] && !S.achieves[a.id]){ S.achieves[a.id] = today; toast("成就解锁 · " + a.n, "gold"); }
+    if(S.achieves[a.id]) unlocked++;
+  }
+  if(unlocked !== (window.__acount||0)){ window.__acount = unlocked; save(); if(typeof renderBadges === "function") renderBadges(); }
+}
+/* ============ 图表引擎 ============ */
+function prep(cv){
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  const r = cv.getBoundingClientRect();
+  cv.width = Math.max(10, Math.round(r.width * dpr)); cv.height = Math.max(10, Math.round(r.height * dpr));
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx, w:r.width, h:r.height};
+}
+function ring(cv, pct, color, txt, sub){
+  const {ctx,w,h} = prep(cv); const cx=w/2, cy=h/2, r=Math.min(w,h)/2-6;
+  ctx.clearRect(0,0,w,h);
+  ctx.lineWidth = 6; ctx.lineCap = "round";
+  ctx.strokeStyle = "rgba(148,178,255,.13)";
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = color;
+  ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2, -Math.PI/2 + Math.PI*2*Math.min(1,Math.max(0,pct))); ctx.stroke();
+  ctx.fillStyle = "#e8eefc"; ctx.font = "900 17px SF Mono,Consolas,monospace"; ctx.textAlign="center";
+  ctx.fillText(txt, cx, cy+4);
+  if(sub){ ctx.fillStyle = "#8ea0c4"; ctx.font = "9px 'Noto Sans SC',sans-serif"; ctx.fillText(sub, cx, cy+18); }
+}
+function radar(cv, vals){
+  const {ctx,w,h} = prep(cv); const cx=w/2, cy=h/2, R=Math.min(w,h)/2-22, n=vals.length;
+  const pt = i => { const a = -Math.PI/2 + i*2*Math.PI/n; return [cx+R*Math.cos(a), cy+R*Math.sin(a)]; };
+  ctx.clearRect(0,0,w,h);
+  for(let ringi=1; ringi<=4; ringi++){
+    ctx.strokeStyle = "rgba(148,178,255,.12)";
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){ const [x,y]=pt(i%n); const rr=ringi/4; const xx=cx+(x-cx)*rr, yy=cy+(y-cy)*rr; i===0?ctx.moveTo(xx,yy):ctx.lineTo(xx,yy); }
+    ctx.closePath(); ctx.stroke();
+  }
+  const max = Math.max(1, ...vals);
+  ctx.beginPath();
+  for(let i=0;i<=n;i++){
+    const a = -Math.PI/2 + (i%n)*2*Math.PI/n;
+    const rr = Math.min(1, vals[i%n]/max);
+    const x = cx+R*rr*Math.cos(a), y = cy+R*rr*Math.sin(a);
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  const grd = ctx.createLinearGradient(0,0,w,h); grd.addColorStop(0,"rgba(245,185,66,.55)"); grd.addColorStop(1,"rgba(34,211,167,.4)");
+  ctx.fillStyle = grd; ctx.fill();
+  ctx.strokeStyle = "#f5b942"; ctx.lineWidth = 2; ctx.stroke();
+  const ks = Object.keys(DIM_META);
+  ctx.font = "10.5px 'Noto Sans SC',sans-serif"; ctx.textAlign = "center";
+  for(let i=0;i<n;i++){
+    const [x,y] = pt(i); const lx = cx+(x-cx)*1.28, ly = cy+(y-cy)*1.28;
+    ctx.fillStyle = "#8ea0c4"; ctx.fillText(DIM_META[ks[i]].name, lx, ly+3);
+    ctx.fillStyle = "rgba(148,178,255,.4)"; ctx.font = "9px SF Mono,monospace";
+    ctx.fillText(vals[i], lx, ly+16);
+    ctx.font = "10.5px 'Noto Sans SC',sans-serif";
+  }
+}
+function line(cv, data, labels, color){
+  const {ctx,w,h} = prep(cv); ctx.clearRect(0,0,w,h);
+  if(data.length < 2){ ctx.fillStyle="#5d6f94"; ctx.font="11px 'Noto Sans SC',sans-serif"; ctx.textAlign="center"; ctx.fillText("数据积累中，每天记录后可见趋势", w/2, h/2); return; }
+  const pad = 12, max = Math.max(1, ...data)*1.15;
+  ctx.strokeStyle = "rgba(148,178,255,.1)";
+  ctx.beginPath(); ctx.moveTo(pad,h-pad); ctx.lineTo(w-pad,h-pad); ctx.moveTo(pad,0); ctx.lineTo(pad,h-pad); ctx.stroke();
+  ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  data.forEach((v,i)=>{ const x = pad + (w-2*pad)*i/Math.max(1,data.length-1), y = h-pad-(h-2*pad)*v/max; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.stroke();
+  ctx.fillStyle = color;
+  data.forEach((v,i)=>{ const x = pad + (w-2*pad)*i/Math.max(1,data.length-1), y = h-pad-(h-2*pad)*v/max; ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill(); });
+  ctx.font = "9px 'Noto Sans SC',sans-serif"; ctx.fillStyle = "#5d6f94"; ctx.textAlign = "center";
+  data.forEach((v,i)=>{ const x = pad + (w-2*pad)*i/Math.max(1,data.length-1); ctx.fillText(labels[i], x, h-pad+14); });
+}
+function bars(cv, data, labels, colors){
+  const {ctx,w,h} = prep(cv); ctx.clearRect(0,0,w,h);
+  const max = Math.max(1, ...data), bw = Math.min(30, (w-20)/data.length*0.6), gap = (w-20)/data.length;
+  data.forEach((v,i)=>{
+    const x = 10 + gap*i + (gap-bw)/2, bh = (h-24)*v/max;
+    const y = h-16-bh;
+    const grd = ctx.createLinearGradient(0,y,0,h-16); grd.addColorStop(0, colors[i]); grd.addColorStop(1, colors[i]+"55");
+    ctx.fillStyle = grd;
+    const r = Math.min(4, bw/2);
+    ctx.beginPath(); ctx.moveTo(x,y+r); ctx.arcTo(x,y,x+bw,y,r); ctx.arcTo(x+bw,y,x+bw,y+bh,r); ctx.arcTo(x+bw,y+bh,x,y+bh,r); ctx.arcTo(x,y+bh,x,y,r); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#8ea0c4"; ctx.font = "9.5px 'Noto Sans SC',sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(labels[i], x+bw/2, h-3);
+  });
+}
+/* ============ 导出 Excel(CSV) ============ */
+function exportCSV(){
+  const rows = [["日期","完成数","获得点","损失点","结算状态"]];
+  const days = Object.keys(S.history).sort();
+  for(const d of days){ const h=S.history[d]; rows.push([d, h.tasksDone||0, h.earned||0, h.lost||0, h.settled?"已结算":"未结算"]); }
+  rows.push([]); rows.push(["任务清单","","","",""]);
+  for(const t of S.tasks){ rows.push([t.name, DIM_META[t.dim].name, t.pts, t.loss, ""]); }
+  rows.push([]); rows.push(["习惯打卡","","","",""]);
+  for(const h of S.habits){ rows.push([h.name, "连续"+habitStreak(h)+"天", "", "", ""]); }
+  rows.push([]); rows.push(["六维成长","","","",""]);
+  for(const k in DIM_META){ rows.push([DIM_META[k].name, S.dims[k].pts, "", "", ""]); }
+  rows.push([]); rows.push(["等级", S.player.lv, "累计成长点", S.player.totalPoints, "连续打卡"+S.player.streak+"天"]);
+  const csv = "\uFEFF" + rows.map(r => r.map(c => { c = String(c==null?"":c); return /[",\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(",")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+  a.download = "成长记录_" + today + ".csv";
+  a.click();
+  toast("已导出 Excel(CSV) 文件", "cyan");
+}
+function resetAll(){
+  if(!confirm("确定清空全部成长数据并重新开始？此操作不可恢复。")) return;
+  localStorage.removeItem(KEY); location.reload();
+}
+/* ============ 视图渲染 ============ */
+let VIEW = "growth";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function taskDoneCount(){ let n=0; for(const t of S.tasks) if(t.done[today]) n++; return n; }
+function renderGrowth(){
+  const p = S.player, h = S.history[today];
+  const need = expNeed(p.lv), tl = titleFor(p.lv);
+  const week = []; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const s=d.getFullYear()+"-"+(d.getMonth()+1).toString().padStart(2,"0")+"-"+d.getDate().toString().padStart(2,"0"); week.push({s, v:S.history[s]?(S.history[s].earned||0):0, l:WEEK[d.getDay()]}); }
+  const weekSum = week.reduce((a,x)=>a+x.v,0);
+  $("content").innerHTML = `
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card" style="display:flex;gap:14px;align-items:center;grid-column:span 1">
+      <canvas id="lvRing" style="width:92px;height:92px"></canvas>
+      <div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--mut)">当前等级</div>
+      <div style="font-size:26px;font-weight:900;font-family:var(--mono);color:var(--gold)">Lv.${p.lv}</div>
+      <div style="font-size:11px;color:var(--cyan)">${tl[1]}</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:3px;font-family:var(--mono)">${p.exp} / ${need} EXP</div></div>
+    </div>
+    <div class="kpi"><div class="k">今日成长</div><div class="v cyan" id="kToday">+${(h.earned||0)-(h.lost||0)}</div><div class="d">获得 ${h.earned||0} · 损失 ${h.lost||0}</div></div>
+    <div class="kpi"><div class="k">连续打卡</div><div class="v gold">${p.streak}</div><div class="d">天 · 保持节奏</div></div>
+    <div class="kpi"><div class="k">累计成长点</div><div class="v blue">${p.totalPoints}</div><div class="d">本周 +${weekSum}</div></div>
+  </div>
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card"><div class="ch"><span class="bar"></span>六维成长雷达</div><canvas id="radarCv" style="width:100%;height:240px"></canvas></div>
+    <div class="card"><div class="ch"><span class="bar"></span>本周成长曲线</div><canvas id="weekCv" style="width:100%;height:240px"></canvas></div>
+  </div>
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="ch"><span class="bar"></span>今日任务 · ${taskDoneCount()}/${S.tasks.length}</div>
+      <div class="pbar" style="height:6px;background:rgba(148,178,255,.1);border-radius:3px;overflow:hidden;margin-bottom:12px"><i style="display:block;height:100%;width:${S.tasks.length?Math.round(taskDoneCount()/S.tasks.length*100):0}%;background:linear-gradient(90deg,var(--gold),var(--cyan));border-radius:3px"></i></div>
+      ${S.tasks.slice(0,5).map(t=>`
+        <div class="task ${t.done[today]?"done":""}" style="margin-bottom:7px">
+          <div class="tck" onclick="toggleTask('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></div>
+          <div class="ttl"><div class="n">${esc(t.name)}</div><div class="m">${DIM_META[t.dim].name} · ${TIMES.find(x=>x.id===t.time).name}</div></div>
+          <div class="pts">+${t.pts}</div>
+        </div>`).join("")}
+      <div style="text-align:center;margin-top:8px"><button class="btn ghost sm" onclick="go('tasks')">管理全部任务</button></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="bar"></span>成就进度</div>
+      ${ACHIEVES.slice(0,6).map(a=>`
+        <div class="badge ${S.achieves[a.id]?"un":""}" style="padding:9px 11px;margin-bottom:7px">
+          <div class="n" style="font-size:12px">${a.n}</div>
+          <div class="d" style="font-size:10px">${a.d}</div>
+          ${S.achieves[a.id]?'<div class="p">于 '+S.achieves[a.id]+' 解锁</div>':""}
+        </div>`).join("")}
+      <div style="text-align:center;margin-top:8px"><button class="btn ghost sm" onclick="go('badges')">查看全部成就</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="bar"></span>今日时段分布</div>
+    <canvas id="timeCv" style="width:100%;height:150px"></canvas>
+  </div>`;
+  requestAnimationFrame(()=>{
+    ring($("lvRing"), p.exp/need, "#f5b942", "Lv."+p.lv, tl[1]);
+    radar($("radarCv"), Object.keys(DIM_META).map(k=>S.dims[k].pts));
+    line($("weekCv"), week.map(x=>x.v), week.map(x=>x.l), "#22d3a7");
+    const bt = h.byTime||{};
+    bars($("timeCv"), TIMES.map(t=>bt[t.id]||0), TIMES.map(t=>t.name), TIMES.map(t=>t.color));
+  });
+}
+function renderTasks(){
+  $("content").innerHTML = `
+  <div class="addrow">
+    <input class="inp" id="tName" placeholder="新任务，如：完成算法题 5 道" style="flex:1;min-width:220px">
+    <select class="sel" id="tDim">${Object.keys(DIM_META).map(k=>`<option value="${k}">${DIM_META[k].name}</option>`).join("")}</select>
+    <select class="sel" id="tTime">${TIMES.map(t=>`<option value="${t.id}">${t.name}</option>`).join("")}</select>
+    <input class="inp" id="tPts" placeholder="加分" style="width:64px" type="number" value="10">
+    <input class="inp" id="tLoss" placeholder="扣分" style="width:64px" type="number" value="5">
+    <button class="btn" onclick="addFromForm()">添加任务</button>
+  </div>
+  <div class="hint" style="margin-bottom:14px">完成任务获得成长点（联动对应维度与等级经验）；当天未完成的任务在结算时按扣分值计入损失。任务可随时增删改。</div>
+  ${TIMES.map(t=>{
+    const ts = S.tasks.filter(x=>x.time===t.id);
+    const done = ts.filter(x=>x.done[today]).length;
+    return `
+    <div class="sec"><b>${t.name}</b> ${t.range} · ${done}/${ts.length} 完成 <span class="ln"></span></div>
+    ${ts.length ? ts.map(x=>`
+      <div class="task ${x.done[today]?"done":""}">
+        <div class="tck" onclick="toggleTask('${x.id}')"><svg viewBox="0 0 24 24" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></div>
+        <div class="ttl"><div class="n">${esc(x.name)}</div><div class="m">${DIM_META[x.dim].name} · 完成 +${x.pts} / 未完成 -${x.loss}</div></div>
+        <div class="pts">+${x.pts}</div>
+        <div class="ops"><button class="iconb" title="删除" onclick="delTask('${x.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></div>
+      </div>`).join("")
+    : `<div class="empty">该时段暂无任务，添加一个开始行动</div>`}`;
+  }).join("")}`;
+}
+function addFromForm(){
+  const n = $("tName").value.trim();
+  if(!n){ toast("请填写任务名称", "gold"); return; }
+  addTask(n, $("tDim").value, $("tPts").value||0, $("tTime").value, $("tLoss").value||0);
+  $("tName").value = "";
+  toast("任务已添加", "cyan");
+}
+function renderHabits(){
+  $("content").innerHTML = `
+  <div class="addrow">
+    <input class="inp" id="hName" placeholder="新习惯，如：每天写 500 字" style="flex:1;min-width:220px">
+    <button class="btn" onclick="addHabitFromForm()">添加习惯</button>
+  </div>
+  <div class="hint" style="margin-bottom:14px">每天打卡一次 +3 成长点；连续打卡天数会因中断而重置，保持节奏才能建立复利。</div>
+  ${S.habits.length ? S.habits.map(h=>`
+    <div class="habit ${h.checkins.includes(today)?"done":""}">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${h.icon==="sun"?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':h.icon==="book"?'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>':'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'}</svg></div>
+      <div class="inf"><div class="n">${esc(h.name)}</div><div class="m">今日已打卡 ${h.checkins.includes(today)?"✓":"待打卡"}</div></div>
+      <div class="streak">${habitStreak(h)}<small>连击</small></div>
+      <div class="ck" onclick="toggleHabit('${h.id}')"><svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></div>
+      <button class="iconb" title="删除" onclick="delHabit('${h.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+    </div>`).join("")
+  : `<div class="empty">还没有习惯，添加第一个习惯开启连续打卡</div>`}
+  <div class="card" style="margin-top:14px"><div class="ch"><span class="bar"></span>本周打卡</div>
+    <div class="week">
+      ${[6,5,4,3,2,1,0].map(i=>{ const d=new Date(); d.setDate(d.getDate()-i); const s=d.getFullYear()+"-"+(d.getMonth()+1).toString().padStart(2,"0")+"-"+d.getDate().toString().padStart(2,"0"); const act=S.habits.some(h=>h.checkins.includes(s)); return `<div class="day ${act?"on":""}"><div class="wd">周${WEEK[d.getDay()]}</div>${act?"✓":d.getDate()}</div>`; }).join("")}
+    </div>
+  </div>`;
+}
+function addHabitFromForm(){
+  const n = $("hName").value.trim();
+  if(!n){ toast("请填写习惯名称", "gold"); return; }
+  addHabit(n); $("hName").value=""; toast("习惯已添加","cyan");
+}
+function renderDims(){
+  $("content").innerHTML = `
+  <div class="grid g2">
+    <div class="card"><div class="ch"><span class="bar"></span>六维成长雷达</div><canvas id="dRadar" style="width:100%;height:300px"></canvas></div>
+    <div class="card"><div class="ch"><span class="bar"></span>维度说明</div>
+      <div class="hint">六个维度对应成长的不同切面：学习（知识与课程）、工作（产出与职业）、健康（身体与精力）、技能（工程与硬能力）、社交（连接与协作）、心智（认知与韧性）。<br><br>每完成一个关联维度的任务，该维度自动加分；也可在下方手动记录维度成长（每次 ±5）。</div>
+    </div>
+  </div>
+  <div style="height:14px"></div>
+  ${Object.keys(DIM_META).map(k=>{
+    const m = DIM_META[k], v = S.dims[k].pts, max = Math.max(50, Math.ceil(v/50)*50);
+    return `
+    <div class="dim">
+      <div class="ic" style="background:${m.color}22"><svg viewBox="0 0 24 24" fill="none" stroke="${m.color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${m.icon}</svg></div>
+      <div class="inf">
+        <div class="n">${m.name}</div>
+        <div class="m">${v} 点</div>
+        <div class="pbar"><i style="width:${Math.min(100, v/max*100)}%"></i></div>
+      </div>
+      <div class="ops">
+        <button class="btn ghost sm" onclick="dimAdjust('${k}',-5)">-5</button>
+        <button class="btn sm" onclick="dimAdjust('${k}',5)">+5</button>
+      </div>
+    </div>`;}).join("")}`;
+  requestAnimationFrame(()=>{ radar($("dRadar"), Object.keys(DIM_META).map(k=>S.dims[k].pts)); });
+}
+function renderBadges(){
+  const unlocked = Object.keys(S.achieves).length;
+  $("content").innerHTML = `
+  <div class="card" style="margin-bottom:14px;display:flex;gap:14px;align-items:center">
+    <div class="ic" style="width:46px;height:46px;border-radius:13px;background:rgba(245,185,66,.13);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#f5b942" stroke-width="2"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"/></svg></div>
+    <div style="flex:1"><div style="font-size:15px;font-weight:900">成就殿堂</div><div style="font-size:11.5px;color:var(--mut)">已解锁 <b style="color:var(--gold);font-family:var(--mono)">${unlocked}</b> / ${ACHIEVES.length} 项成就</div></div>
+    <div class="pbar" style="flex:1;max-width:220px;height:6px;background:rgba(148,178,255,.1);border-radius:3px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(unlocked/ACHIEVES.length*100)}%;background:linear-gradient(90deg,var(--gold),var(--cyan))"></i></div>
+  </div>
+  <div class="badges">
+  ${ACHIEVES.map(a=>{
+    const un = !!S.achieves[a.id];
+    return `<div class="badge ${un?"un":""}">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${a.icon}</svg></div>
+      <div class="n">${a.n}</div>
+      <div class="d">${a.d}</div>
+      ${un?'<div class="p">' + S.achieves[a.id] + ' 解锁</div>':'<div class="p">未解锁</div>'}
+    </div>`;}).join("")}
+  </div>`;
+}
+function renderStats(){
+  const days = Object.keys(S.history).sort().slice(-14);
+  $("content").innerHTML = `
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card"><div class="ch"><span class="bar"></span>近 14 天成长趋势</div><canvas id="sLine" style="width:100%;height:230px"></canvas></div>
+    <div class="card"><div class="ch"><span class="bar"></span>时段活跃分布（近 14 天）</div><canvas id="sBars" style="width:100%;height:230px"></canvas></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="ch" style="justify-content:space-between"><span style="display:flex;gap:8px;align-items:center"><span class="bar"></span>每日成长明细</span>
+      <span style="display:flex;gap:8px"><button class="btn sm" onclick="exportCSV()">导出 Excel(CSV)</button></span></div>
+    ${days.length ? `<table><thead><tr><th>日期</th><th>完成任务</th><th>获得</th><th>损失</th><th>净成长</th><th>状态</th></tr></thead><tbody>
+      ${days.map(d=>{ const h=S.history[d]||{}; const net=(h.earned||0)-(h.lost||0); return `<tr><td>${d}</td><td>${h.tasksDone||0}</td><td class="pos">+${h.earned||0}</td><td class="neg">-${h.lost||0}</td><td><b class="${net>=0?"pos":"neg"}">${net>=0?"+":""}${net}</b></td><td>${h.settled?'<span class="chip c-ok">已结算</span>':'<span class="chip c-warn">进行中</span>'}</td></tr>`; }).join("")}
+    </tbody></table>` : `<div class="empty">暂无记录，开始第一天成长后这里会出现明细</div>`}
+  </div>
+  <div class="card">
+    <div class="ch"><span class="bar"></span>数据管理</div>
+    <div class="hint" style="margin-bottom:12px">所有数据保存在本机浏览器（localStorage），不会上传到任何服务器。建议定期导出备份。</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn cyan" onclick="exportCSV()">导出成长记录</button>
+      <button class="btn danger" onclick="resetAll()">清空并重新开始</button>
+    </div>
+  </div>`;
+  requestAnimationFrame(()=>{
+    line($("sLine"), days.map(d=>{const h=S.history[d]; return (h.earned||0)-(h.lost||0);}), days.map(d=>d.slice(5)), "#f5b942");
+    const bt = {morning:0,afternoon:0,evening:0,night:0};
+    for(const d of days){ const h=S.history[d]; if(h&&h.byTime){ for(const k in bt) bt[k]+=h.byTime[k]||0; } }
+    bars($("sBars"), TIMES.map(t=>bt[t.id]), TIMES.map(t=>t.name), TIMES.map(t=>t.color));
+  });
+}
+function render(){
+  rollover();
+  const titles = {growth:"成长总览",tasks:"每日任务",habits:"习惯打卡",dims:"六维成长",badges:"成就殿堂",stats:"数据分析"};
+  const subs = {growth:"今天的每一步，都是明天的复利",tasks:"按时段管理你的每日成长任务",habits:"用连续打卡建立稳定节律",dims:"六维平衡，全面发展",badges:"里程碑正在等你突破",stats:"用数据看清自己的成长轨迹"};
+  $("pageTitle").textContent = titles[VIEW];
+  $("pageSub").textContent = subs[VIEW];
+  $("navLv").textContent = "Lv." + S.player.lv;
+  $("navPts").textContent = S.player.totalPoints;
+  $("navStk").textContent = S.player.streak;
+  if(VIEW==="growth") renderGrowth();
+  else if(VIEW==="tasks") renderTasks();
+  else if(VIEW==="habits") renderHabits();
+  else if(VIEW==="dims") renderDims();
+  else if(VIEW==="badges") renderBadges();
+  else if(VIEW==="stats") renderStats();
+  document.querySelectorAll(".nitem").forEach(n=>n.classList.toggle("on", n.dataset.v===VIEW));
+}
+function go(v){ VIEW = v; render(); }
+function addTaskModal(){ go("tasks"); const i = $("tName"); if(i){ setTimeout(()=>{ i.focus(); i.scrollIntoView({behavior:"smooth", block:"center"}); }, 60); } }
+/* ============ 升级 / Toast / 弹窗 ============ */
+let pendingLv = [];
+function showLevelUp(){
+  const tl = titleFor(S.player.lv);
+  $("luLv").textContent = "Lv." + S.player.lv;
+  $("luTitle").textContent = tl[1] + " · " + tl[2];
+  $("luSub").textContent = "等级 " + (S.player.lv-1) + " → " + S.player.lv;
+  $("levelup").classList.add("show");
+}
+function closeLevelUp(){ $("levelup").classList.remove("show"); }
+let toastTimer = null;
+function toast(msg, cls){
+  const t = $("toast");
+  t.textContent = msg; t.className = "toast show " + (cls||"");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+/* ============ 初始化 ============ */
+document.querySelectorAll(".nitem").forEach(n=>n.addEventListener("click", ()=>go(n.dataset.v)));
+window.go = go; window.toggleTask = toggleTask; window.delTask = delTask; window.addTask = addTask;
+window.toggleHabit = toggleHabit; window.delHabit = delHabit; window.addHabit = addHabit; window.dimAdjust = dimAdjust;
+window.settleToday = settleToday; window.addFromForm = addFromForm; window.addHabitFromForm = addHabitFromForm;
+window.exportCSV = exportCSV; window.resetAll = resetAll; window.closeLevelUp = closeLevelUp;
+load(); rollover(); checkAchievements(); render();
+</script>
+</body>
+</html>
